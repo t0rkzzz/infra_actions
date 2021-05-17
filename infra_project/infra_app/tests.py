@@ -5,7 +5,6 @@ from django.urls import reverse
 
 
 class StaticPagesURLTests(TestCase):
-    @classmethod
     def setUp(self):
         self.guest_client = Client()
 
