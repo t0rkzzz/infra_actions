@@ -45,3 +45,19 @@ jobs:
         with:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/infra:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build_and_push_to_docker_hub
+    steps:
+    - name: Executing remote ssh commands to deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PUBLIC_IPV4_PROD }}
+        username: ${{ secrets.PROD_SSH_USER }}
+        key: ${{ secrets.SSH_PUBLIC_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        script: |
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/infra
+          sudo docker stop $(sudo docker ps -a -q)
+          sudo docker run --rm -d -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/infra
